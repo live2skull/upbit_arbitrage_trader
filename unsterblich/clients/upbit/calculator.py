@@ -51,6 +51,14 @@ class CalcSession:
         self.fee = Decimal(fee * 0.01 + 1)
 
 
+
+def get_market_buy_price(price, fee):
+    price = conv2dec(price)
+    fee = conv2dec(fee * 0.01)
+
+    return dec2float(price * (1 - fee))
+
+
 def vt_buy_all(balance, fee, ask_prices: list, ask_amounts: list, isKRW=True):
     sess = CalcSession(balance, 0, fee)
     is_finished = 0

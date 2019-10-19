@@ -51,7 +51,16 @@ class UpbitAPIClient(Session):
             self.mount('https://', new_source)
 
     def build_auth_header(self, query, uuid4):
+
+        keys = list(filter(lambda x: query[x] is None, query.keys())) # coroutine err: dic changed in iter
+        for key in keys:
+            query.pop(key)
+
         query_string = urlencode(query).encode()
+
+        # 오류 사유: 실제 request에서 None값은 삭제되어 전송되지 않으나
+        # query_string에서는 해당 파라메터가 포함되어 오류가 발생됨.
+
 
         payload = {
             'access_key': access_key,

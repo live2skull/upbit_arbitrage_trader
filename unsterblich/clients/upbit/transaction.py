@@ -104,6 +104,10 @@ class Transaction:
         return self.coin_base if self.transaction_type is TRX_SELL else self.coin_target
 
     @property
+    def coin_contract(self):
+        return self.coin_base if self.transaction_type is TRX_BUY else self.coin_target
+
+    @property
     def is_krw(self):
         return self.market.upper().find('KRW') is not -1
 

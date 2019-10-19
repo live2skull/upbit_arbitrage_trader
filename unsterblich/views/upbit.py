@@ -12,7 +12,7 @@ from ..serializers.generics import ReqContractTransactions, ReqMarkets, ReqTopol
 
 from ..clients.upbit.apis import UpbitAPIClient, UpbitLocalClient
 
-from ..clients.upbit.transaction import Wallet, Transaction
+from ..clients.upbit.transaction import Wallet, Transaction, TRX_BUY, TRX_SELL
 from ..clients.upbit.topology import Topology
 from ..clients.upbit.contractor import FastContraction
 
@@ -89,6 +89,17 @@ class UpbitActionView(ViewSet):
     def test(self, req: Request):
         return Response(UpbitAPIClient().get_user_balance())
 
+    def test_wallet(self, req: Request):
+        FastContraction().update_wallet()
+        return Response("OK")
+
+    def test_contract(self, req: Request):
+
+        return Response(FastContraction().contract(
+            transaction=Transaction(
+                market=req.query_params['market'],
+                transaction_type=int(req.query_params['transaction_type']))
+        ))
 
 _sv = UpbitActionView
 
@@ -107,5 +118,13 @@ urlpatterns = [
 
     path('test', _sv.as_view(
         actions={GET : 'test'})
+    ),
+
+    path('test_wallet', _sv.as_view(
+        actions={GET : 'test_wallet'})
+    ),
+
+    path('test_contract', _sv.as_view(
+        actions={GET : 'test_contract'})
     ),
 ]
