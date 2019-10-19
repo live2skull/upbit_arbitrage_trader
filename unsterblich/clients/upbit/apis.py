@@ -31,6 +31,7 @@ URL_ORDERBOOK = 'https://api.upbit.com/v1/orderbook'
 URL_ALL_MARKET = 'https://api.upbit.com/v1/market/all'
 URL_MARKET_CHANCE = 'https://api.upbit.com/v1/orders/chance'
 URL_ACCOUNT = 'https://api.upbit.com/v1/accounts'
+URL_ORDER = 'https://api.upbit.com/v1/orders'
 
 # https://stackoverflow.com/questions/28773033/python-requests-how-to-bind-to-different-source-ip-for-each-request
 
@@ -195,19 +196,13 @@ class UpbitAPIClient(Session):
         return self.get(group='account', url=URL_ACCOUNT, auth=True)
 
 
-    def contract(self):
-        pass
-
-
-    def contract_buy(self):
-        pass
-
-
-    def contract_sell(self):
-        pass
-
-
-
+    def contract(self, market, side, volume, price, ord_type):
+        return self.post(group='orders', url=URL_ORDER,
+         params={
+            'market' : market, 'side' : side, 'volume' : volume,
+            'price' : price, 'ord_type' : ord_type
+         },
+         auth=True)
 
 
 
