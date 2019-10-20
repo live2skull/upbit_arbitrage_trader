@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from ..globals import GET, POST
 
-from ..serializers.generics import ReqContractTransactions, ReqMarkets, ReqTopologySra
+from ..serializers.generics import ReqContractTransactions, ReqMarkets, ReqTopologySra, ReqSingleContract
 
 from ..clients.upbit.apis import UpbitAPIClient, UpbitLocalClient
 
@@ -34,6 +34,10 @@ class UpbitActionView(ViewSet):
 
     def contract_chained_transactions(self, req: Request):
         data = req.data
+
+        # 1. maximum start context
+        # 2.
+
         balance = float(data['balance']) # maximum balance
         base_coin = data['base_coin']
         objects = data['objects']
@@ -95,10 +99,20 @@ class UpbitActionView(ViewSet):
 
     def test_contract(self, req: Request):
 
+        _sra = ReqSingleContract(data=req.query_params)
+        _sra.is_valid(raise_exception=True)
+        _req = _sra.validated_data
+
+        market = _req['market']
+        transaction_type = _req['transaction_type']
+        allow_market_order = _req['allow_market_order']
+        volume = _req['volume']
+        price = _req['price']
+
         return Response(FastContraction().contract(
             transaction=Transaction(
-                market=req.query_params['market'],
-                transaction_type=int(req.query_params['transaction_type']))
+                market=market, transaction_type=transaction_type),
+                allow_market_order=allow_market_order, volume=volume, price=price
         ))
 
 _sv = UpbitActionView

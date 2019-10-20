@@ -44,6 +44,7 @@ class CalcSession:
     amount = None # type: Decimal
     fee = None # type: Decimal
     is_finished = None # type: int
+    current = None # type: Decimal
 
     def __init__(self, balance, amount, fee):
         self.balance = conv2dec(balance)
@@ -57,6 +58,44 @@ def get_market_buy_price(price, fee):
     fee = conv2dec(fee * 0.01)
 
     return dec2float(price * (1 - fee))
+
+
+## TODO: 시장이 급격하게 변화하여 거래가 짤릴경우..?!?!?
+## 추후에 호가를 강제로 올려 책정하는 등의 설정이 필요할 듯!
+
+# 거래가 안정적으로 진행될 수 있도록
+# 제공된 호가에서 일정 수준의 높은 값을 선정후
+# 해당 금액에 맞게 volume, price를 산출한다.
+
+# 미리 작성된 vt_... 이용하여 구해본다.
+
+def get_limit_buy_volume_price(balance, fee, ask_prices: list, ask_amounts: list, isKRW=True):
+    # 현재 가격보다 높은 가격으로 산다.
+    # 매수가격(price) / 주문수량(volume)
+    _foo, _volume, _price = vt_buy_all(
+        balance=balance,
+        fee=fee, # fee re-configured in vt_... methods!
+        ask_prices=ask_prices, # TODO: Test -> 호가를 높여서 거래실패 방지 (추후 수정예정)
+        ask_amounts=ask_amounts, # price 범위를 변경했으니 amounts 범위도 변경하여야 함.
+        isKRW=isKRW
+    )
+    # _price : 계산하고 가장 높은 가격으로 반환하게 됩나다.
+
+    return _volume, _price
+
+
+def get_limit_sell_volume_price(amount, fee, bid_prices: list, bid_amounts: list, isKRW=True):
+    # 매도가격은 bid_prices 에서 가장 마지막 (가장 싼거)로 호출하면 큰 문제없이 잘 팔린다.
+    # 원화마켓에 판매하는 경우 돌려받는 값이 원화이므로, 관계없이 계산하면 된다.
+
+    # _volume, _foo, _price = vt_sell_all(
+    #     #     amount=amount,
+    #     #     fee=fee,  # fee re-configured in vt_... methods!
+    #     #     bid_prices=bid_amounts,
+    #     #     bid_amounts=bid_prices,
+    #     #     isKRW=isKRW
+    #     # )
+    return amount, bid_prices[-1]
 
 
 def vt_buy_all(balance, fee, ask_prices: list, ask_amounts: list, isKRW=True):
@@ -90,6 +129,7 @@ def vt_buy_all(balance, fee, ask_prices: list, ask_amounts: list, isKRW=True):
         _ask_amount = Decimal(ask_amounts[i])
 
         if set_buy_amount(ask_price=_ask_price, ask_amount=_ask_amount):
+            sess.current = _ask_price
             is_finished += 1
             break
 
@@ -98,7 +138,7 @@ def vt_buy_all(balance, fee, ask_prices: list, ask_amounts: list, isKRW=True):
         raise ValueError("최대 호가로 거래를 종결할 수 없음")
 
     if isKRW: sess.balance = truncate(sess.balance)
-    return dec2float(sess.balance), dec2float(sess.amount)
+    return dec2float(sess.balance), dec2float(sess.amount), dec2float(sess.current)
 
 
 
@@ -134,6 +174,7 @@ def vt_sell_all(amount, fee, bid_prices: list, bid_amounts: list, isKRW=True):
         _bid_amount = Decimal(bid_amounts[i])
 
         if set_sell_balance(bid_price=_bid_price, bid_amount=_bid_amount):
+            sess.current = _bid_price
             is_finished += 1
             break
 
@@ -142,7 +183,7 @@ def vt_sell_all(amount, fee, bid_prices: list, bid_amounts: list, isKRW=True):
         raise ValueError("최대 호가로 거래를 종결할 수 없음")
 
     if isKRW: sess.balance = truncate(sess.balance)
-    return dec2float(sess.balance), dec2float(sess.amount)
+    return dec2float(sess.balance), dec2float(sess.amount), dec2float(sess.current)
 
 
 

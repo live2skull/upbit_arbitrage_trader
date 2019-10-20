@@ -230,7 +230,7 @@ class Transaction:
             # TODO: -0.00000000 -> ??
             # isKRW parameter missed!
             if self.transaction_type == TRX_BUY:
-                balance, amount = vt_buy_all(
+                balance, amount, current = vt_buy_all(
                     balance=self.wallet.get(self.coin_base),
                     fee=self.fee,
                     ask_prices=units[ASK_PRICES],
@@ -244,7 +244,7 @@ class Transaction:
                 ))
 
             if self.transaction_type == TRX_SELL:
-                balance, amount = vt_sell_all(
+                balance, amount, current = vt_sell_all(
                     amount=self.wallet.get(self.coin_target),
                     fee=self.fee,
                     bid_prices=units[BID_PRICES],
