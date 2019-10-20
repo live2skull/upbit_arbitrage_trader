@@ -88,7 +88,8 @@ def get_limit_buy_volume_price(balance, fee, ask_prices: list, ask_amounts: list
     # _price : 계산하고 가장 높은 가격으로 반환하게 됩나다.
     # 라고 생각했지만.. 안되는 이유는? (ex - 주문가능한 BTC가 부족함)
 
-    _amount = vt_buy_single(balance=balance, ask_price=ask_prices[-1])
+    # 수수료 포함이었어..?
+    _amount = vt_buy_single(balance=balance, ask_price=ask_prices[-1], fee=fee)
 
     return _amount, ask_prices[-1]
 
@@ -107,11 +108,12 @@ def get_limit_sell_volume_price(amount, fee, bid_prices: list, bid_amounts: list
     return amount, bid_prices[-1]
 
 
-def vt_buy_single(balance, ask_price):
+def vt_buy_single(balance, ask_price, fee):
     balance = Decimal(balance)
     ask_price = Decimal(ask_price)
+    fee = Decimal(1 - (fee * 0.01))
 
-    return dec2float(balance / ask_price)
+    return dec2float((balance / ask_price) * fee)
 
     # 가격이랑 주문수량만이 필요합니다.
     # 가격은 맨 마지막 꺼. 주문수량만이 필요하게 됨.

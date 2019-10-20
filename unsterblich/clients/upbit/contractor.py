@@ -65,6 +65,7 @@ class FastContraction:
             # raise ValueError(
             #     "거래에 필요한 화폐가 존재하지 않습니다. (%s / %s)" % (transaction.market, transaction.coin_contract)
             # )
+            return False # ??!!
 
         count = 0
 
