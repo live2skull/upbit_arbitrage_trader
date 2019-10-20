@@ -54,6 +54,7 @@ class FastContraction:
         ## TODO: wallet status 추적 필요할듯.
 
         required_coin = transaction.coin_contract
+        self.update_wallet_state_val()
 
         def is_contracting():
             for stat in self.wallet_status:
