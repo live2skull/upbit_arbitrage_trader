@@ -1,7 +1,6 @@
 from django.urls import path
 
 
-
 from rest_framework.viewsets import ViewSet
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -36,18 +35,33 @@ class UpbitActionView(ViewSet):
         data = req.data
 
         # 1. maximum start context
-        # 2.
 
         balance = float(data['balance']) # maximum balance
-        base_coin = data['base_coin']
         objects = data['objects']
 
+        if fastContractor.is_contracting:
+            return Response({
+                "result" : False, "reason" : "contractor already running."
+            })
+        fastContractor.set_contracting(True)
 
         transactions = []
         for obj in objects:
             transactions.append(Transaction.deserialize(obj))
 
 
+        balance_start, balance_end = fastContractor.start_contract(
+                transactions=transactions,
+                maximum_contract=balance
+        )
+
+        # TODO: save / tracking contract results & etc
+        # TODO: Response Serializer
+        return Response({
+            'result' : True,
+            'balance_start' : balance_start, 'balance_end' :  balance_end,
+            'profit' : balance_end - balance_start
+        })
 
     def available_markets(self, req: Request):
         _sra = ReqMarkets(data=req.query_params)
@@ -112,7 +126,7 @@ class UpbitActionView(ViewSet):
         return Response(FastContraction().contract(
             transaction=Transaction(
                 market=market, transaction_type=transaction_type),
-                allow_market_order=allow_market_order, volume=volume, price=price
+                allow_market_order=allow_market_order, vol=volume, pri=price
         ))
 
 _sv = UpbitActionView
