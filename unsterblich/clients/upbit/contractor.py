@@ -1,6 +1,7 @@
 from threading import Thread, Lock
 from time import sleep
 import math
+from os import getenv
 
 from .apis import UpbitAPIClient
 from .transaction import Wallet, Transaction, TRX_BUY, TRX_SELL
@@ -13,7 +14,6 @@ log = create_logger(name='UpbitContractor', level=0)
 
 CONTRACT_WAIT_SEC = 0.2
 CONTRACT_WAIT_COUNT = 5
-
 
 class FastContraction:
 

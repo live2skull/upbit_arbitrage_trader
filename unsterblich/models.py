@@ -44,7 +44,7 @@ class ProfitResultTransaction(IdModelMixin, Model):
     )
 
     market = CharField(null=True, max_length=16)
-    transaction_type = SmallIntegerField(null=True, choices=[0, 1]) # BUY / SELL
+    transaction_type = SmallIntegerField(null=True, choices=[(0, 'BUY'), (1, 'SELL')]) # BUY / SELL
 
     @classmethod
     def create(cls, transaction: Transaction, profit_result: ProfitResult):

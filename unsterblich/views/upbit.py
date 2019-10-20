@@ -1,5 +1,6 @@
-from django.urls import path
+from os import getenv
 
+from django.urls import path
 
 from rest_framework.viewsets import ViewSet
 from rest_framework.request import Request
@@ -27,6 +28,9 @@ from ..models import ProfitResult
 
 """
 
+DISABLE_CONTRACT = True if getenv('DISABLE_CONTRACT', 'true').lower() is 'true' else False
+
+
 fastContractor = FastContraction()
 
 class UpbitActionView(ViewSet):
@@ -46,6 +50,11 @@ class UpbitActionView(ViewSet):
             transactions.append(Transaction.deserialize(obj))
 
         ProfitResult.create(balance=balance, profit=profit, transactions=transactions)
+
+        if DISABLE_CONTRACT:
+            return Response({
+                "result": False, "reason": "contract currently disabled."
+            })
 
         if fastContractor.is_contracting:
             return Response({
