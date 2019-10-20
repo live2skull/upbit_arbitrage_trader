@@ -28,7 +28,7 @@ from ..models import ProfitResult
 
 """
 
-DISABLE_CONTRACT = True if getenv('DISABLE_CONTRACT', 'true').lower() is 'true' else False
+DISABLE_CONTRACT = True if getenv('DISABLE_CONTRACT', 'true').lower() == 'true' else False
 
 
 fastContractor = FastContraction()

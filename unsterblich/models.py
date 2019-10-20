@@ -30,10 +30,12 @@ class ProfitResult(IdModelMixin, Model):
         profit_result.profit = profit
         profit_result.save()
 
+        order = 0
         for transaction in transactions: # type: Transaction
             ProfitResultTransaction.create(
-                transaction=transaction, profit_result=profit_result
+                transaction=transaction, profit_result=profit_result, order=order
             )
+            order += 1
 
         return profit_result
 
@@ -45,13 +47,15 @@ class ProfitResultTransaction(IdModelMixin, Model):
 
     market = CharField(null=True, max_length=16)
     transaction_type = SmallIntegerField(null=True, choices=[(0, 'BUY'), (1, 'SELL')]) # BUY / SELL
+    order = SmallIntegerField(null=True)
 
     @classmethod
-    def create(cls, transaction: Transaction, profit_result: ProfitResult):
+    def create(cls, transaction: Transaction, profit_result: ProfitResult, order):
         result_transaction = cls()
         result_transaction.market = transaction.market
         result_transaction.transaction_type = transaction.transaction_type
         result_transaction.profit_result = profit_result
+        result_transaction.order = order
         result_transaction.save()
 
         return result_transaction
