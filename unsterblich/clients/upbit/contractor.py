@@ -32,9 +32,10 @@ class FastContraction:
     def update_wallet_state_val(self):
         self.wallet_status = self.api.get_user_balance()
 
-    def update_wallet(self):
+    def update_wallet(self, refresh=True):
 
-        self.update_wallet_state_val()
+        if refresh:
+            self.update_wallet_state_val()
 
         for stat in self.wallet_status:
             coin = stat['currency']
@@ -236,13 +237,13 @@ class FastContraction:
         ))
 
         self.contract(transactions[0], maximum_contract=maximum_contract)
-        self.update_wallet()
         self.wait_for_finish_contract(transactions[0]) # 해당 거래가 종료되었는지 체크
+        self.update_wallet(refresh=False)
 
         for tr in transactions[1:]: # type: Transaction
             self.contract(tr)
-            self.update_wallet()
             self.wait_for_finish_contract(tr) # 해당 거래가 종료되었는지 체크
+            self.update_wallet(refresh=False)
 
         balance_end = self.wallet.get(coin_start)
 
