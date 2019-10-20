@@ -15,6 +15,7 @@ from ..clients.upbit.transaction import Wallet, Transaction, TRX_BUY, TRX_SELL
 from ..clients.upbit.topology import Topology
 from ..clients.upbit.contractor import FastContraction
 
+from ..models import ProfitResult
 
 """
 #1. select available markets
@@ -38,16 +39,19 @@ class UpbitActionView(ViewSet):
 
         balance = float(data['balance']) # maximum balance
         objects = data['transactions']
+        profit = data['profit']
+
+        transactions = []
+        for obj in objects:
+            transactions.append(Transaction.deserialize(obj))
+
+        ProfitResult.create(balance=balance, profit=profit, transactions=transactions)
 
         if fastContractor.is_contracting:
             return Response({
                 "result" : False, "reason" : "contractor already running."
             })
         fastContractor.set_contracting(True)
-
-        transactions = []
-        for obj in objects:
-            transactions.append(Transaction.deserialize(obj))
 
 
         balance_start, balance_end = fastContractor.start_contract(
