@@ -61,6 +61,7 @@ def create_pika_connection(host=None, port=None, user=None, password=None,
         pika.ConnectionParameters(
             host=host, port=port, virtual_host=virtual_host,
             credentials=pika.PlainCredentials(user, password),
+            heartbeat=5
         )
     )
     return conn
