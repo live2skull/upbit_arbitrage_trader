@@ -51,6 +51,7 @@ class FastContraction:
     def wait_for_finish_contract(self, transaction: Transaction):
 
         ## TODO: obj -> ... 데이터를 LINQ 처럼 검색할 수는 없을까?
+        ## TODO: wallet status 추적 필요할듯.
 
         required_coin = transaction.coin_contract
 
@@ -59,9 +60,11 @@ class FastContraction:
                 if stat['currency'] == required_coin:
                     return not float(stat['locked']) == 0
 
-            raise ValueError(
-                "거래에 필요한 화폐가 존재하지 않습니다. (%s / %s)" % (transaction.market, transaction.coin_contract)
-            )
+            # KRW-SOLVE -> 매도까지 됬는데?
+            # 완료되면 잔금이 없을 경우 사라졌을 수 있다는것임. 실패한 것이 아님!
+            # raise ValueError(
+            #     "거래에 필요한 화폐가 존재하지 않습니다. (%s / %s)" % (transaction.market, transaction.coin_contract)
+            # )
 
         count = 0
 
@@ -165,6 +168,7 @@ class FastContraction:
 
             units = transaction.orderbook.units
 
+            # 구매에서 문제가 발생하곤 한다.
             _volume, _price = get_limit_buy_volume_price( # 구매할 경우 알맞은 코인 갯수와 가격이 필요.
                     balance=self.wallet.get(transaction.coin_base),
                     fee=transaction.fee,
@@ -252,3 +256,4 @@ class FastContraction:
     def __init__(self):
         self.api = UpbitAPIClient()
         self.wallet = Wallet()
+        self._lock = Lock()

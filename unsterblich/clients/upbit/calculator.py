@@ -69,19 +69,28 @@ def get_market_buy_price(price, fee):
 
 # 미리 작성된 vt_... 이용하여 구해본다.
 
-def get_limit_buy_volume_price(balance, fee, ask_prices: list, ask_amounts: list, isKRW=True):
+def get_limit_buy_volume_price(balance, fee, ask_prices: list, ask_amounts: list,
+                               isKRW=True):
+
+    # 처음에 안됬던 건 갯수는 낮음금액으로 측정했는데... 금액은 높은금액이 들어갔기 때문이다.
+    # 너무 어렵게 생각한 듯.
+    # 최대 가격으로 구매할 수 있는 갯수만큼을 신청하면 된다. (without fee)
+
     # 현재 가격보다 높은 가격으로 산다.
     # 매수가격(price) / 주문수량(volume)
-    _foo, _volume, _price = vt_buy_all(
-        balance=balance,
-        fee=fee, # fee re-configured in vt_... methods!
-        ask_prices=ask_prices, # TODO: Test -> 호가를 높여서 거래실패 방지 (추후 수정예정)
-        ask_amounts=ask_amounts, # price 범위를 변경했으니 amounts 범위도 변경하여야 함.
-        isKRW=isKRW
-    )
+    # _foo, _volume, _price = vt_buy_all(
+    #     balance=balance,
+    #     fee=fee, # fee re-configured in vt_... methods!
+    #     ask_prices=ask_prices, # TODO: Test -> 호가를 높여서 거래실패 방지 (추후 수정예정)
+    #     ask_amounts=ask_amounts, # price 범위를 변경했으니 amounts 범위도 변경하여야 함.
+    #     isKRW=isKRW
+    # )
     # _price : 계산하고 가장 높은 가격으로 반환하게 됩나다.
+    # 라고 생각했지만.. 안되는 이유는? (ex - 주문가능한 BTC가 부족함)
 
-    return _volume, _price
+    _amount = vt_buy_single(balance=balance, ask_price=ask_prices[-1])
+
+    return _amount, ask_prices[-1]
 
 
 def get_limit_sell_volume_price(amount, fee, bid_prices: list, bid_amounts: list, isKRW=True):
@@ -96,6 +105,16 @@ def get_limit_sell_volume_price(amount, fee, bid_prices: list, bid_amounts: list
     #     #     isKRW=isKRW
     #     # )
     return amount, bid_prices[-1]
+
+
+def vt_buy_single(balance, ask_price):
+    balance = Decimal(balance)
+    ask_price = Decimal(ask_price)
+
+    return dec2float(balance / ask_price)
+
+    # 가격이랑 주문수량만이 필요합니다.
+    # 가격은 맨 마지막 꺼. 주문수량만이 필요하게 됨.
 
 
 def vt_buy_all(balance, fee, ask_prices: list, ask_amounts: list, isKRW=True):

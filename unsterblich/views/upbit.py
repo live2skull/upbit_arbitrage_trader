@@ -37,7 +37,7 @@ class UpbitActionView(ViewSet):
         # 1. maximum start context
 
         balance = float(data['balance']) # maximum balance
-        objects = data['objects']
+        objects = data['transactions']
 
         if fastContractor.is_contracting:
             return Response({
@@ -132,7 +132,7 @@ class UpbitActionView(ViewSet):
 _sv = UpbitActionView
 
 urlpatterns = [
-    path('contract', _sv.as_view(
+    path('contract_chained_transactions', _sv.as_view(
         actions={POST : 'contract_chained_transactions'})
     ),
 
