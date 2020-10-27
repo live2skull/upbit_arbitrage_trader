@@ -7,7 +7,7 @@ ccxt==1.18.1279
 certifi==2019.9.11
 cffi==1.13.0
 chardet==3.0.4
-cryptography==2.7
+cryptography==3.2
 Django==2.2.6
 django-filter==2.2.0
 django-redis-cache==2.1.0
